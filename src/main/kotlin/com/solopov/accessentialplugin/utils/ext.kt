@@ -1,0 +1,131 @@
+package com.solopov.accessentialplugin.utils
+
+import com.solopov.accessentialplugin.maxHeightOfElement
+import javax.swing.JComponent
+
+import com.intellij.openapi.ui.ComboBox
+import com.intellij.util.ui.JBUI
+import javax.swing.Box
+import javax.swing.DefaultComboBoxModel
+import javax.swing.JButton
+import javax.swing.JLabel
+import javax.swing.JPanel
+import java.awt.Component
+import java.awt.Dimension
+import java.awt.GridBagConstraints
+
+import kotlin.reflect.KClass
+
+inline fun <R, T : R> Result<T>.onException(
+    vararg exceptions: KClass<out Throwable>,
+    transform: (exception: Throwable) -> T
+) = recoverCatching { ex ->
+    if (ex::class in exceptions) {
+        transform(ex)
+    } else throw ex
+}
+
+@Suppress("LongParameterList")
+fun JPanel.placeComponent(
+    component: Component,
+    x: Int,
+    y: Int,
+    w: Int = 1,
+    h: Int = 1,
+    fillType: Int = GridBagConstraints.HORIZONTAL,
+    anchorType: Int = GridBagConstraints.NORTHWEST
+) {
+    add(component, GridBagConstraints().apply {
+        gridx = x
+        gridy = y
+        gridwidth = w
+        gridheight = h
+        anchor = anchorType
+        weightx = 1.0
+        fill = fillType
+        insets = JBUI.emptyInsets()
+    })
+}
+
+@Suppress("LongParameterList")
+fun JPanel.createToggleRow(
+    label: String,
+    whichRow: Int,
+    positiveLabel: String,
+    negativeLabel: String,
+    colStart: Int = 3,
+    colSpan: Int = 2,
+    positiveAction: () -> Unit,
+    negativeAction: () -> Unit
+) {
+    placeComponent(
+        JLabel(label).apply {
+            setMaxSize()
+        },
+        x = 0,
+        y = whichRow,
+        w = 2,
+        anchorType = GridBagConstraints.CENTER
+    )
+    placeComponent(JButton(positiveLabel).apply {
+        setMaxSize()
+        addActionListener {
+            positiveAction()
+        }
+    }, colStart, w = colSpan, y = whichRow)
+    placeComponent(JButton(negativeLabel).apply {
+        setMaxSize()
+        addActionListener {
+            negativeAction()
+        }
+    }, colStart + colSpan, w = colSpan, y = whichRow)
+}
+
+fun JPanel.createDropDownMenu(
+    label: String,
+    whichRow: Int,
+    options: List<String>,
+    onSelectionChanged: (String) -> Unit
+) {
+    placeComponent(
+        JLabel(label).apply { setMaxSize() },
+        x = 0,
+        y = whichRow,
+        w = 2,
+        anchorType = GridBagConstraints.CENTER
+    )
+
+    placeComponent(ComboBox(DefaultComboBoxModel<String>().apply {
+        options.forEach { addElement(getString(it)) }
+    }).apply {
+        setMaxSize()
+        addActionListener {
+            onSelectionChanged(options[this.selectedIndex])
+        }
+    }, x = 3, y = whichRow, w = 4)
+}
+
+fun JPanel.addFiller(index: Int = -1) {
+    if (index == -1) {
+        add(
+            Box.Filler(
+                Dimension(0, 0),
+                Dimension(0, Int.MAX_VALUE),
+                Dimension(0, Int.MAX_VALUE)
+            )
+        )
+    } else {
+        add(
+            Box.Filler(
+                Dimension(0, 0),
+                Dimension(0, Int.MAX_VALUE),
+                Dimension(0, Int.MAX_VALUE)
+            ),
+            index
+        )
+    }
+}
+
+fun JComponent.setMaxSize() {
+    preferredSize.height = maxHeightOfElement
+}

@@ -1,0 +1,3 @@
+package com.solopov.accessentialplugin.model
+
+interface NotificationInfo

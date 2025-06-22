@@ -1,0 +1,18 @@
+<idea-plugin>
+    <id>com.solopov.accessential-plugin</id>
+
+    <name>AccEssential</name>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.androidstudio</depends>
+    <depends>org.jetbrains.android</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup displayType="BALLOON" id="AccEssential"/>
+
+        <toolWindow factoryClass="com.solopov.accessentialplugin.AccessentialPluginToolConfigureWindowFactory"
+                    id="AccEssential"
+                    icon="/icons/tool_icon.svg"
+                    anchor="bottom"
+        />
+    </extensions>
+</idea-plugin>
